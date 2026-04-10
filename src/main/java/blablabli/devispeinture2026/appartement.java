@@ -4,6 +4,11 @@ public class appartement {
     private int idAppart;
     private int nbrPiece;
 
+public appartement(int idAppart, int nbrPiece){
+    this.idAppart = idAppart;
+    this.nbrPiece = nbrPiece;
+}
+    
     public int getIdAppart() {
         return idAppart;
     }
