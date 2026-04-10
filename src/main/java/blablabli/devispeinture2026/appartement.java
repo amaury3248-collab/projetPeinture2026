@@ -1,3 +1,5 @@
+package blablabli.devispeinture2026;
+
 public class appartement {
     private int idAppart;
     private int nbrPiece;
