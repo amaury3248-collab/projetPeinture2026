@@ -1,12 +1,15 @@
 package com.mycompany.projetpeinture2026;
 
+import java.util.Objects;
+
 public class Revetement {
-    private double prix;
-    private int idRev;
-    private String type;
-    private boolean pourMur; //     
-    private boolean pourSol; //     en référence au document texte
-    private boolean pourPlafond; //
+
+    private final double prix;
+    private final int idRev;
+    private final String type;
+    private final boolean pourMur;
+    private final boolean pourSol;
+    private final boolean pourPlafond;
 
     public Revetement(double prix, int idRev, String type, boolean pourMur, boolean pourSol, boolean pourPlafond) {
         this.prix = prix;
@@ -17,45 +20,28 @@ public class Revetement {
         this.pourPlafond = pourPlafond;
     }
 
-    public double getPrix() {
-        return prix;
-    }
-    public int getIdRev() {
-        return idRev;
-    }
-    public String getType() {
-        return type;
+    public double getPrix() { return prix; }
+    public int getIdRev() { return idRev; }
+    public String getType() { return type; }
+    public boolean isPourMur() { return pourMur; }
+    public boolean isPourSol() { return pourSol; }
+    public boolean isPourPlafond() { return pourPlafond; }
+
+    @Override
+    public String toString() {
+        return type + " (id=" + idRev + ", " + prix + " €/m²)";
     }
 
-    public boolean isPourMur() {
-        return pourMur;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Revetement)) return false;
+        Revetement that = (Revetement) o;
+        return idRev == that.idRev;
     }
 
-    public boolean isPourSol() {
-        return pourSol;
+    @Override
+    public int hashCode() {
+        return Objects.hash(idRev);
     }
-
-    public boolean isPourPlafond() {
-        return pourPlafond;
-    }
-// On ne met pas de setter pour l'id --> pas de modif après création
-    public void setPrix(double prix) {
-        this.prix = prix;
-    }
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setPourMur(boolean pourMur) {
-        this.pourMur = pourMur;
-    }
-
-    public void setPourSol(boolean pourSol) {
-        this.pourSol = pourSol;
-    }
-
-    public void setPourPlafond(boolean pourPlafond) {
-        this.pourPlafond = pourPlafond;
-    }
-      
 }
