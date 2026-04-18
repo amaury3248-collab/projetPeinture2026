@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml">
+
+    <center>
+        <VBox spacing="20" alignment="CENTER">
+            <Label text="Projet Peinture 2026" style="-fx-font-size: 24px;"/>
+            <Button text="Ouvrir l'éditeur de pièce"
+                    onAction="#ouvrirEditeur"/>
+        </VBox>
+    </center>
+
+</BorderPane>
