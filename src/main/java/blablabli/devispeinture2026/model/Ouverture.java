@@ -2,9 +2,9 @@ package blablabli.devispeinture2026.model;
 
 public abstract class Ouverture {
 
-    protected double largeur;   // largeur de l’ouverture
-    protected double hauteur;   // hauteur de l’ouverture
-    protected double hBas;      // hauteur du bas de l’ouverture par rapport au sol
+    protected double largeur;
+    protected double hauteur;
+    protected double hBas;
 
     public Ouverture(double largeur, double hauteur, double hBas) {
         this.largeur = largeur;
