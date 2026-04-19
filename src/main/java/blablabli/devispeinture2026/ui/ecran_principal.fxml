@@ -1,3 +1,6 @@
+fx:controller="blablabli.devispeinture2026.ui.controller.EcranPrincipalController"
+
+
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
