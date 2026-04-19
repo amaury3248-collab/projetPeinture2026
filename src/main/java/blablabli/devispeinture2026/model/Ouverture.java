@@ -1,4 +1,4 @@
-package com.mycompany.projetpeinture2026;
+package blablabli.devispeinture2026.model;
 
 public abstract class Ouverture {
     protected double largeur;
