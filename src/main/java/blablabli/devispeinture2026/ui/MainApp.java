@@ -10,7 +10,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/blablabli/devispeinture2026/ui/main.fxml")
+            getClass().getResource("/blablabli/devispeinture2026/ui/ecran_principal.fxml")
         );
 
         Scene scene = new Scene(loader.load());
