@@ -1,13 +1,11 @@
-fx:controller="blablabli.devispeinture2026.ui.controller.EcranPrincipalController"
-
-
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml">
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="blablabli.devispeinture2026.ui.controller.EcranPrincipalController">
 
     <center>
         <VBox spacing="20" alignment="CENTER">
