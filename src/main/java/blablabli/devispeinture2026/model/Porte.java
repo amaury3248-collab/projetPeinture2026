@@ -2,16 +2,8 @@ package blablabli.devispeinture2026.model;
 
 public class Porte extends Ouverture {
 
-    public Porte() {
-        super(0.90, 2.10); //Dimensions standards
+    // Dimensions standard d’une porte : 90 cm × 210 cm
+    public Porte(double hBas) {
+        super(0.90, 2.10, hBas);
     }
-
-    public double getLargeur() {
-        return largeur;
-    }
-    public double getHauteur() {
-        return hauteur;
-    }
-    
-    
 }
