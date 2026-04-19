@@ -1,4 +1,4 @@
-package com.mycompany.projetpeinture2026; /////////// ATTENTION AUX PACKAGES DIFFERENTS ENTRE NOUS 
+package blablabli.devispeinture2026.model; /////////// ATTENTION AUX PACKAGES DIFFERENTS ENTRE NOUS 
 
 import java.util.ArrayList;
 import java.util.List;
