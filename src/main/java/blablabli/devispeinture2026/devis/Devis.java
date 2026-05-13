@@ -25,7 +25,7 @@ public class Devis {
         montantTotal = 0.0;
 
         for (Niveau niveau : batiment.getNiveaux()) {
-            double hauteurNiveau = niveau.getH(); // Nécessaire pour les murs
+            double hauteurNiveau = niveau.getH(); // (murs)
             
             for (Appartement appart : niveau.getApparts()) {
                 for (Piece piece : appart.getPieces()) {
