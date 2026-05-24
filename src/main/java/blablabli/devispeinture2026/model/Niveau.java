@@ -1,6 +1,6 @@
 package com.mycompany.projetpeinture2026;
 
-import java.util.*; // Je ne sais pas si il faut mettre List ou bien * suffit : ca n'avait pas l'air de marcher sur NetBeans :( 
+import java.util.*;
 
 public class Niveau {
     private int idNiveau;
