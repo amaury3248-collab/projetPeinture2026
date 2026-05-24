@@ -1,9 +1,16 @@
-package blablabli.devispeinture2026.model;
+package com.mycompany.projetpeinture2026;
 
 public class Fenetre extends Ouverture {
 
-    // Dimensions standard d’une fenêtre : 120 cm × 120 cm
-    public Fenetre(double hBas) {
-        super(1.20, 1.20, hBas);
+    public Fenetre() {
+        super(1.20, 1.20); //Dimensions standards
     }
+
+    public double getLargeur() {
+        return largeur;
+    }
+    public double getHauteur() {
+        return hauteur;
+    }
+        
 }
