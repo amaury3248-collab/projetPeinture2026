@@ -1,16 +1,16 @@
-package blablabli.devispeinture2026.model; /////////// ATTENTION AUX PACKAGES DIFFERENTS ENTRE NOUS 
+package com.mycompany.projetpeinture2026;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Mur {
     private int idMur;
-    private float[] coords; // [xDebut, yDebut, xFin; yFin]
+    private double[] coords; // [xDebut, yDebut, xFin; yFin]
     private boolean murExt;
     private List<Revetement> revetements;
     private List<Ouverture> ouvertures;
 
-    public Mur(int idMur, float[] coords, boolean murExt, List<Revetement> revetements, List<Ouverture> ouvertures) {
+    public Mur(int idMur, double[] coords, boolean murExt, List<Revetement> revetements, List<Ouverture> ouvertures) {
         this.idMur = idMur;
         this.coords = coords;
         this.murExt = murExt;
@@ -21,7 +21,7 @@ public class Mur {
     public int getIdMur() {
         return idMur;
     }
-    public float[] getCoords() {
+    public double[] getCoords() {
         return coords;
     }
     public boolean isMurExt() {
@@ -45,8 +45,8 @@ public class Mur {
     public void ajouterOuverture(Ouverture o){
         if (o != null) this.ouvertures.add(o);
     }
-    public float calculerLongueur(){
-        return (float) Math.sqrt(Math.pow(coords[2]-coords[0], 2) + Math.pow(coords[3]-coords[1], 2));
+    public double calculerLongueur(){
+        return Math.sqrt(Math.pow(coords[2]-coords[0], 2) + Math.pow(coords[3]-coords[1], 2));
     }
     
     public double calculerSurfaceNette(double hauteurNiveau) {        
