@@ -4,14 +4,14 @@ import java.util.List;
 
 public class Strate {
     private int idStrate;
-    private float surfaceBrute;
+    private double surfaceBrute;
     private List<Revetement> revsSup; // pour le sol 
     private List<Revetement> revsInf; // pour le plafond
     private List<Ouverture> tremies;  
     //Pour le dernier étage (sans plafond) : Lors de la création de la pièce strate du sol, mais null pour la strate haute :
     // Exemple : Piece maChambreSousLesToits = new Piece(1, "Chambre", monPlancher, null);
 
-    public Strate(int idStrate, float surfaceBrute, List<Revetement> revsSup, List<Revetement> revsInf, List<Ouverture> tremies) {
+    public Strate(int idStrate, double surfaceBrute, List<Revetement> revsSup, List<Revetement> revsInf, List<Ouverture> tremies) {
         this.idStrate = idStrate;
         this.surfaceBrute = surfaceBrute;
         this.revsSup = revsSup;
@@ -22,7 +22,7 @@ public class Strate {
     public int getIdStrate() {
         return idStrate;
     }
-    public float getSurfaceBrute() {
+    public double getSurfaceBrute() {
         return surfaceBrute;
     }
     public List<Revetement> getRevsSup() {
