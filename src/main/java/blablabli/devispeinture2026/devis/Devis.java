@@ -25,7 +25,7 @@ public class Devis {
         montantTotal = 0.0;
 
         for (Niveau niveau : batiment.getNiveaux()) {
-            double hauteurNiveau = niveau.getH(); // (murs)
+            double hauteurNiveau = niveau.getH(); // Nécessaire pour les murs
             
             for (Appartement appart : niveau.getApparts()) {
                 for (Piece piece : appart.getPieces()) {
@@ -75,24 +75,30 @@ public class Devis {
         }
     }
 
-    public void afficherDetail() {
-        System.out.println("======================================");
-        System.out.println("         DEVIS DU BÂTIMENT " + batiment.getIdBatiment());
-        System.out.println("======================================");
-        
-        for (Revetement rev : surfaceParRevetement.keySet()) {
-            double surface = surfaceParRevetement.get(rev);
-            double prix = prixParRevetement.get(rev);
-            
-            // String.format permet d'arrondir à 2 chiffres après la virgule
-            System.out.println(String.format("- %s (Réf %d) : %.2f m2 -> %.2f euros", 
-                    rev.getType(), rev.getIdRev(), surface, prix));
+    public String afficherDetail() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("======================================\n");
+        sb.append("         DEVIS DU BATIMENT ").append(batiment.getIdBatiment()).append("\n");
+        sb.append("======================================\n");
+    if (surfaceParRevetement.isEmpty()) {
+            sb.append("Aucun revêtement n'a été appliqué aux pièces.\n");
+        } else {
+            for (Revetement rev : surfaceParRevetement.keySet()) {
+                double surface = surfaceParRevetement.get(rev);
+                double prix = prixParRevetement.get(rev);
+                
+                sb.append(String.format("- %s (Ref %d) : %.2f m² -> %.2f euros\n", 
+                        rev.getType(), rev.getIdRev(), surface, prix));
+            }
         }
         
-        System.out.println("--------------------------------------");
-        System.out.println(String.format("TOTAL GLOBAL : %.2f euros", montantTotal));
-        System.out.println("======================================");
-    }
+        sb.append("\n--------------------------------------\n");
+        sb.append(String.format("TOTAL GLOBAL : %.2f euros\n", montantTotal));
+        sb.append("======================================");
+        
+        return sb.toString(); // texte complet renvoyé
+    }    
+    
     
     // si besoin de récupérer les infos plus tard
     public double getMontantTotal() { return montantTotal; }
