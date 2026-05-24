@@ -67,6 +67,7 @@ public class MainApp extends Application {
     }
     return liste;
 }
+    
     // Méthode pour construire l'interface de saisie
     private VBox creerVueSaisie() {
         VBox conteneur = new VBox(15); // Espacement de 15 pixels entre les éléments
@@ -133,8 +134,63 @@ public class MainApp extends Application {
         comboCatalogue.getItems().add(r.getType() + " - " + r.getPrix() + " €/m²");
         }
         sectionCatalogue.getChildren().addAll(lblCat, comboCatalogue);
+       
         
-        conteneur.getChildren().addAll(titre, typeBox, sectionNiveaux, sectionCatalogue);
+
+        // Section sauvegarde et chargement 
+        VBox sectionFichiers = new VBox(10);
+        sectionFichiers.setStyle("-fx-border-color: #cccccc; -fx-padding: 10; -fx-border-radius: 5;");
+        Label lblFichiers = new Label("Gestion des fichiers du projet");
+        lblFichiers.setStyle("-fx-font-weight: bold;");
+        
+        HBox actionsBox = new HBox(10);
+        TextField txtNomFichier = new TextField("sauvegarde_batiment.txt");
+        txtNomFichier.setPrefWidth(180);
+        
+        Button btnSauvegarder = new Button("Sauvegarder");
+        Button btnCharger = new Button("Charger le fichier");
+        
+        // Action Sauvegarde
+        btnSauvegarder.setOnAction(e -> {
+            String nom = txtNomFichier.getText();
+            if (nom != null && !nom.trim().isEmpty()) {
+                Batiment.sauvegarderBatiment(batimentActuel, nom);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Projet sauvegardé dans " + nom);
+                alert.showAndWait();
+            }
+        });
+        
+        // Action Chargement
+        btnCharger.setOnAction(e -> {
+            String nom = txtNomFichier.getText();
+            if (nom != null && !nom.trim().isEmpty()) {
+                Batiment batCharge = chargerBatiment(nom);
+                if (batCharge != null) {
+                    batimentActuel = batCharge; // Remplace le modèle de données actuel
+                    
+                    // Rafraîchir l'affichage graphique de la liste des niveaux
+                    listeNiveauxUI.getItems().clear();
+                    for (Niveau n : batimentActuel.getNiveaux()) {
+                        listeNiveauxUI.getItems().add("Niveau " + n.getIdNiveau() + " (H: " + n.getH() + "m)");
+                    }
+                    
+                    // Mettre à jour la ComboBox du type de bâtiment
+                    comboType.setValue(batimentActuel.isType() ? "Immeuble" : "Maison");
+                    
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Projet chargé avec succès !");
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible de charger le fichier.");
+                    alert.showAndWait();
+                }
+            }
+        });
+        
+        actionsBox.getChildren().addAll(txtNomFichier, btnSauvegarder, btnCharger);
+        sectionFichiers.getChildren().addAll(lblFichiers, actionsBox);
+        
+        // Ajout global au conteneur
+        conteneur.getChildren().addAll(titre, typeBox, sectionNiveaux, sectionCatalogue, sectionFichiers);
         return conteneur;
     }
     
@@ -263,8 +319,8 @@ public class MainApp extends Application {
         btnCalculer.setOnAction(evenement -> {
             Devis devis = new Devis(batimentActuel);
             devis.calculer();
-            zoneAffichageDevis.setText("Montant total estimé : " + devis.getMontantTotal() + " euros\n\n" +
-                                       "(Ici, nous afficherons le détail par revêtement plus tard)");
+            
+            zoneAffichageDevis.setText(devis.afficherDetail());
         });
 
         conteneur.getChildren().addAll(btnCalculer, zoneAffichageDevis);
@@ -333,16 +389,28 @@ public class MainApp extends Application {
         grid.add(new Label("Plafond :"), 0, 6);
         grid.add(comboPlafond, 1, 6);
 
+        // Formulaire pour les ouvertures
+        grid.add(new Label("--- Ouvertures ---"), 0, 7, 2, 1);
+        
+        grid.add(new Label("Nombre de portes :"), 0, 8);
+        Spinner<Integer> spinPortes = new Spinner<>(0, 10, 0); // Minimum 0, Maximum 10, Valeur par défaut 0
+        grid.add(spinPortes, 1, 8);
+
+        grid.add(new Label("Nombre de fenêtres :"), 0, 9);
+        Spinner<Integer> spinFenetres = new Spinner<>(0, 10, 0);
+        grid.add(spinFenetres, 1, 9);
+
+        // On replace le bouton valider sur la ligne suivante
         Button btnValider = new Button("Créer la pièce");
-        grid.add(btnValider, 1, 7);
+        grid.add(btnValider, 1, 10);
 
         // Action lors du clic sur Valider
         btnValider.setOnAction(e -> {
             try {
                 String usage = txtUsage.getText();
-                float L = Float.parseFloat(txtLongueur.getText());
-                float l = Float.parseFloat(txtLargeur.getText());
-                float surfaceBrute = L * l;
+                double L = Double.parseDouble(txtLongueur.getText());
+                double l = Double.parseDouble(txtLargeur.getText());
+                double surfaceBrute = L * l;
 
                 // Récupération des objets Revetement correspondants
                 Revetement revMur = trouverRevetement(comboMur.getValue());
@@ -358,12 +426,28 @@ public class MainApp extends Application {
 
                 // Création des 4 Murs rectangulaires (relatifs)
                 List<Revetement> listeRevMur = revMur != null ? new ArrayList<>(List.of(revMur)) : new ArrayList<>();
-                Mur m1 = new Mur(1, new float[]{0, 0, L, 0}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
-                Mur m2 = new Mur(2, new float[]{L, 0, L, l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
-                Mur m3 = new Mur(3, new float[]{L, l, 0, l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
-                Mur m4 = new Mur(4, new float[]{0, l, 0, 0}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m1 = new Mur(1, new double[]{0, 0, L, 0}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m2 = new Mur(2, new double[]{L, 0, L, l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m3 = new Mur(3, new double[]{L, l, 0, l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m4 = new Mur(4, new double[]{0, l, 0, 0}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
                 
                 List<Mur> murs = new ArrayList<>(List.of(m1, m2, m3, m4));
+                
+                // Répartition des ouvertures sur les murs créés
+                int nbPortes = spinPortes.getValue();
+                int nbFenetres = spinFenetres.getValue();
+                int indexMur = 0;
+                
+                // On distribue cycliquement les portes sur les murs
+                for (int i = 0; i < nbPortes; i++) {
+                    murs.get(indexMur % 4).ajouterOuverture(new Porte());
+                    indexMur++;
+                }
+                // On distribue cycliquement les fenêtres à la suite
+                for (int i = 0; i < nbFenetres; i++) {
+                    murs.get(indexMur % 4).ajouterOuverture(new Fenetre());
+                    indexMur++;
+                }
 
                 // Création et ajout de la pièce
                 int idPiece = appart.getPieces().size() + 1;
@@ -378,12 +462,10 @@ public class MainApp extends Application {
             }
         });
 
-        Scene scene = new Scene(grid, 450, 400);
+        Scene scene = new Scene(grid, 450, 550);
         stagePiece.setScene(scene);
         stagePiece.showAndWait(); //  "AndWait" pour que la fenêtre précédente se mette à jour après qu'on ait fermé la fenêtre de modification
     }
-    
-    
     
     
     // Méthode pour retrouver l'objet Revetement à partir de son affichage
@@ -398,12 +480,117 @@ public class MainApp extends Application {
         }
         return null;
     }
+    
 
+    // Méthode pour charger un bâtiment à partir d'un fichier de sauvegarde texte
+    private Batiment chargerBatiment(String nomFichier) {
+        Batiment batimentCharge = null;
+        Niveau niveauCourant = null;
+        Appartement appartCourant = null;
+        Piece pieceCourante = null;
+        Mur murCourant = null; // on garde la memoire sur le dernier mur lu 
 
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(nomFichier))) {
+            String ligne;
+            while ((ligne = br.readLine()) != null) {
+                String[] d = ligne.split(";");
+                if (d.length == 0) continue;
+
+                switch (d[0]) {
+                    case "BATIMENT":
+                        int idBat = Integer.parseInt(d[1]);
+                        boolean isImmeuble = d[2].equalsIgnoreCase("Immeuble");
+                        batimentCharge = new Batiment(idBat, isImmeuble, new ArrayList<>());
+                        break;
+
+                    case "NIVEAU":
+                        if (batimentCharge != null) {
+                            int idNiv = Integer.parseInt(d[1]);
+                            double hauteur = Double.parseDouble(d[2]);
+                            niveauCourant = new Niveau(idNiv, hauteur, 0, new ArrayList<>());
+                            batimentCharge.ajouterNiveau(niveauCourant);
+                        }
+                        break;
+
+                    case "APPART":
+                        if (niveauCourant != null) {
+                            int idAppart = Integer.parseInt(d[1]);
+                            appartCourant = new Appartement(idAppart, 0, new ArrayList<>());
+                            niveauCourant.ajouterAppartement(appartCourant);
+                        }
+                        break;
+
+                    case "PIECE":
+                        if (appartCourant != null) {
+                            int idPiece = Integer.parseInt(d[1]);
+                            String usage = d[2];
+                            // Initialisation de strates vides (Sol et Plafond) pour la pièce
+                            Strate sol = new Strate(1, 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                            Strate plafond = new Strate(2, 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                            
+                            pieceCourante = new Piece(idPiece, usage, new ArrayList<>(), plafond, sol);
+                            appartCourant.ajouterPiece(pieceCourante);
+                        }
+                        break;
+                        
+                    case "REV_SOL":
+                        if (pieceCourante != null && pieceCourante.getStrateDown() != null) {
+                            int idRev = Integer.parseInt(d[1]);
+                            Revetement rev = trouverRevetementParId(idRev);
+                            if (rev != null) pieceCourante.getStrateDown().ajouterRevSup(rev);
+                        }
+                        break;
+                        
+                    case "REV_PLAFOND":
+                        if (pieceCourante != null && pieceCourante.getStrateUp() != null) {
+                            int idRev = Integer.parseInt(d[1]);
+                            Revetement rev = trouverRevetementParId(idRev);
+                            if (rev != null) pieceCourante.getStrateUp().ajouterRevInf(rev);
+                        }
+                        break;
+
+                    case "MUR":
+                        if (pieceCourante != null) {
+                            int idMur = Integer.parseInt(d[1]);
+                            double[] coords = new double[]{
+                                Double.parseDouble(d[2]), Double.parseDouble(d[3]),
+                                Double.parseDouble(d[4]), Double.parseDouble(d[5])
+                            };
+                            boolean isExt = d[6].equals("1");
+                            
+                            murCourant = new Mur(idMur, coords, isExt, new ArrayList<>(), new ArrayList<>());
+                            pieceCourante.ajouterMur(murCourant);
+                        }
+                        break;
+                    
+                    case "REV_MUR":
+                        if (murCourant != null) {
+                            int idRev = Integer.parseInt(d[1]);
+                            Revetement rev = trouverRevetementParId(idRev);
+                            if (rev != null) murCourant.ajouterRevetement(rev);
+                        }
+                        break;
+                }
+            }
+            System.out.println("Chargement réussi depuis " + nomFichier);
+        } catch (Exception e) {
+            System.out.println("Erreur lors du chargement du fichier : " + e.getMessage());
+        }
+        return batimentCharge;
+    }
+
+    // Méthode utilitaire pour retrouver un revêtement par son ID
+    private Revetement trouverRevetementParId(int id) {
+        for (Revetement r : catalogue) {
+            if (r.getIdRev() == id) {
+                return r;
+            }
+        }
+        return null;
+    }
     
     public static void main(String[] args) {
         // Lance l'application JavaFX
         launch(args);
     }
 }
-
