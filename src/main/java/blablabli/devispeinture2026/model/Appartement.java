@@ -1,4 +1,4 @@
-package blablabli.devispeinture2026;
+package com.mycompany.projetpeinture2026;
 
 import java.util.List;
 
