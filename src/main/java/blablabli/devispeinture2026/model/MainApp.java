@@ -327,13 +327,6 @@ public class MainApp extends Application {
         return conteneur;
     }
 
-    // Méthode pour construire l'interface du plan 2D
-    private Pane creerVuePlan() {
-        Pane zoneDessin = new Pane();
-        zoneDessin.setStyle("-fx-background-color: #f4f4f4;");
-        // Le code pour dessiner les murs viendra s'insérer ici
-        return zoneDessin;
-    }
     
     // Méthode pour ouvrir le formulaire de création d'une pièce
     private void ouvrirFenetreAjoutPiece(Appartement appart, Niveau niveauContext) {
@@ -345,22 +338,30 @@ public class MainApp extends Application {
         grid.setVgap(10);
         grid.setHgap(10);
 
-        // Saisie de l'usage
+        // Saisie utilisateur
         grid.add(new Label("Usage de la pièce (ex: Salon) :"), 0, 0);
         TextField txtUsage = new TextField();
         grid.add(txtUsage, 1, 0);
 
-        // Dimensions de la pièce rectangulaire
-        grid.add(new Label("Longueur (m) :"), 0, 1);
+        // Dimensions et position initiale de la pièce rectangulaire
+        grid.add(new Label("Position X de départ (m) :"), 0, 1);
+        TextField txtX = new TextField("0"); // Par défaut à 0
+        grid.add(txtX, 1, 1);
+        
+        grid.add(new Label("Position Y de départ (m) :"), 0, 2);
+        TextField txtY = new TextField("0");
+        grid.add(txtY, 1, 2);
+        
+        grid.add(new Label("Longueur (m) :"), 0, 3);
         TextField txtLongueur = new TextField();
-        grid.add(txtLongueur, 1, 1);
+        grid.add(txtLongueur, 1, 3);
 
-        grid.add(new Label("Largeur (m) :"), 0, 2);
+        grid.add(new Label("Largeur (m) :"), 0, 4);
         TextField txtLargeur = new TextField();
-        grid.add(txtLargeur, 1, 2);
+        grid.add(txtLargeur, 1, 4);
 
         // Section Revêtements
-        grid.add(new Label("--- Revêtements ---"), 0, 3, 2, 1);
+        grid.add(new Label("--- Revêtements ---"), 0, 5, 2, 1);
 
         // Menus déroulants pour les revêtements
         ComboBox<String> comboMur = new ComboBox<>();
@@ -382,32 +383,34 @@ public class MainApp extends Application {
             if (r.isPourPlafond()) comboPlafond.getItems().add(affichage);
         }
 
-        grid.add(new Label("Murs :"), 0, 4);
-        grid.add(comboMur, 1, 4);
-        grid.add(new Label("Sol :"), 0, 5);
-        grid.add(comboSol, 1, 5);
-        grid.add(new Label("Plafond :"), 0, 6);
-        grid.add(comboPlafond, 1, 6);
+        grid.add(new Label("Murs :"), 0, 6);
+        grid.add(comboMur, 1, 6);
+        grid.add(new Label("Sol :"), 0, 7);
+        grid.add(comboSol, 1, 7);
+        grid.add(new Label("Plafond :"), 0, 8);
+        grid.add(comboPlafond, 1, 8);
 
         // Formulaire pour les ouvertures
-        grid.add(new Label("--- Ouvertures ---"), 0, 7, 2, 1);
+        grid.add(new Label("--- Ouvertures ---"), 0, 9, 2, 1);
         
-        grid.add(new Label("Nombre de portes :"), 0, 8);
+        grid.add(new Label("Nombre de portes :"), 0, 10);
         Spinner<Integer> spinPortes = new Spinner<>(0, 10, 0); // Minimum 0, Maximum 10, Valeur par défaut 0
-        grid.add(spinPortes, 1, 8);
+        grid.add(spinPortes, 1, 10);
 
-        grid.add(new Label("Nombre de fenêtres :"), 0, 9);
-        Spinner<Integer> spinFenetres = new Spinner<>(0, 10, 0);
-        grid.add(spinFenetres, 1, 9);
+        grid.add(new Label("Nombre de fenêtres :"), 0, 11);
+        Spinner<Integer> spinFenetres = new Spinner<>(0, 11, 0);
+        grid.add(spinFenetres, 1, 11);
 
         // On replace le bouton valider sur la ligne suivante
         Button btnValider = new Button("Créer la pièce");
-        grid.add(btnValider, 1, 10);
+        grid.add(btnValider, 1, 12);
 
         // Action lors du clic sur Valider
         btnValider.setOnAction(e -> {
             try {
                 String usage = txtUsage.getText();
+                double startX = Double.parseDouble(txtX.getText());
+                double startY = Double.parseDouble(txtY.getText());
                 double L = Double.parseDouble(txtLongueur.getText());
                 double l = Double.parseDouble(txtLargeur.getText());
                 double surfaceBrute = L * l;
@@ -424,12 +427,12 @@ public class MainApp extends Application {
                 List<Revetement> listeRevPlafond = revPlafond != null ? new ArrayList<>(List.of(revPlafond)) : new ArrayList<>();
                 Strate plafond = new Strate(2, surfaceBrute, new ArrayList<>(), listeRevPlafond, new ArrayList<>());
 
-                // Création des 4 Murs rectangulaires (relatifs)
+                // Création des 4 Murs rectangulaires (~~relatifs~, on passe à absolus avec la vue 2D)
                 List<Revetement> listeRevMur = revMur != null ? new ArrayList<>(List.of(revMur)) : new ArrayList<>();
-                Mur m1 = new Mur(1, new double[]{0, 0, L, 0}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
-                Mur m2 = new Mur(2, new double[]{L, 0, L, l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
-                Mur m3 = new Mur(3, new double[]{L, l, 0, l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
-                Mur m4 = new Mur(4, new double[]{0, l, 0, 0}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m1 = new Mur(1, new double[]{startX, startY, startX + L, startY}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m2 = new Mur(2, new double[]{startX + L, startY, startX + L, startY + l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m3 = new Mur(3, new double[]{startX + L, startY + l, startX, startY + l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
+                Mur m4 = new Mur(4, new double[]{startX, startY + l, startX, startY}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
                 
                 List<Mur> murs = new ArrayList<>(List.of(m1, m2, m3, m4));
                 
@@ -455,7 +458,7 @@ public class MainApp extends Application {
                 appart.ajouterPiece(nouvellePiece);
 
                 System.out.println("Pièce '" + usage + "' ajoutée à l'appartement " + appart.getIdAppart() + " !");
-                stagePiece.close(); // Fermer la fenêtre après validation
+                stagePiece.close(); // ferme la fenêtre après validation
 
             } catch (NumberFormatException ex) {
                 System.out.println("Veuillez entrer des nombres valides pour les dimensions.");
@@ -480,7 +483,106 @@ public class MainApp extends Application {
         }
         return null;
     }
+    // Méthode pour retrouver un revêtement par son ID
+    private Revetement trouverRevetementParId(int id) {
+        for (Revetement r : catalogue) {
+            if (r.getIdRev() == id) {
+                return r;
+            }
+        }
+        return null;
+    }
+
     
+
+    // Méthode pour construire l'interface du plan 2D
+    private VBox creerVuePlan() {
+        VBox conteneur = new VBox(15);
+        conteneur.setPadding(new Insets(20));
+
+        HBox barreOutils = new HBox(15);
+        Button btnActualiser = new Button("Actualiser le plan");
+        ComboBox<String> comboNiveau = new ComboBox<>();
+        barreOutils.getChildren().addAll(btnActualiser, comboNiveau);
+
+        Pane zoneDessin = new Pane();
+        // Fond blanc avec bordure pour la zone de dessin
+        zoneDessin.setStyle("-fx-background-color: white; -fx-border-color: #aaaaaa; -fx-border-width: 2px;");
+        zoneDessin.setPrefSize(800, 500);
+
+        // Action du bouton d'actualisation
+        btnActualiser.setOnAction(e -> {
+            comboNiveau.getItems().clear();
+            if (batimentActuel != null && !batimentActuel.getNiveaux().isEmpty()) {
+                for (Niveau n : batimentActuel.getNiveaux()) {
+                    comboNiveau.getItems().add("Niveau " + n.getIdNiveau());
+                }
+                comboNiveau.getSelectionModel().select(0); // Sélectionne le 1er niveau par défaut
+                dessinerNiveau(zoneDessin, batimentActuel.getNiveaux().get(0));
+            }
+        });
+
+        // Changement de niveau dans le menu déroulant
+        comboNiveau.setOnAction(e -> {
+            int index = comboNiveau.getSelectionModel().getSelectedIndex();
+            if (index >= 0) {
+                dessinerNiveau(zoneDessin, batimentActuel.getNiveaux().get(index));
+            }
+        });
+
+        conteneur.getChildren().addAll(barreOutils, zoneDessin);
+        return conteneur;
+    }
+
+    // Méthode pour dessiner les murs sur le Pane
+    private void dessinerNiveau(Pane zoneDessin, Niveau niveau) {
+        zoneDessin.getChildren().clear(); // On nettoie le dessin précédent
+
+        double echelle = 40.0; // 1 mètre = 40 pixels à l'écran (d'où échelle)
+        
+        // Marge
+        double margeEcranX = 50.0; 
+        double margeEcranY = 50.0;
+
+        for (Appartement appart : niveau.getApparts()) {
+            for (Piece piece : appart.getPieces()) {
+                
+                double[] coordsPiece = piece.getMurs().get(0).getCoords(); //Coords 1er murs pour placer l'étiquette
+                // Dessin de chaque mur de la pièce
+                for (Mur mur : piece.getMurs()) {
+                    double[] c = mur.getCoords();
+                    
+                    javafx.scene.shape.Line ligneMur = new javafx.scene.shape.Line(
+                            (c[0] * echelle) + margeEcranX, (c[1] * echelle) + margeEcranY,
+                            (c[2] * echelle) + margeEcranX, (c[3] * echelle) + margeEcranY
+                    );
+                    
+                    ligneMur.setStrokeWidth(4); // Épaisseur du mur
+                    // Mur extérieur en bleu, mur intérieur en noir
+                    if (mur.isMurExt()) {
+                        ligneMur.setStroke(javafx.scene.paint.Color.DARKBLUE);
+                    } else {
+                        ligneMur.setStroke(javafx.scene.paint.Color.BLACK);
+                    }
+                    
+                    zoneDessin.getChildren().add(ligneMur);
+                }
+                
+                // Ajout d'une petite étiquette de texte au centre de la pièce
+                javafx.scene.text.Text etiquette = new javafx.scene.text.Text(
+                        (coordsPiece[0] * echelle) + margeEcranX + 10, 
+                        (coordsPiece[1] * echelle) + margeEcranY + 20, 
+                        piece.getUsage() + " (Apt " + appart.getIdAppart() + ")"
+                );
+                etiquette.setFill(javafx.scene.paint.Color.GRAY);
+                zoneDessin.getChildren().add(etiquette);
+                
+                
+                }
+            }
+        }
+    
+
 
     // Méthode pour charger un bâtiment à partir d'un fichier de sauvegarde texte
     private Batiment chargerBatiment(String nomFichier) {
@@ -579,15 +681,7 @@ public class MainApp extends Application {
         return batimentCharge;
     }
 
-    // Méthode utilitaire pour retrouver un revêtement par son ID
-    private Revetement trouverRevetementParId(int id) {
-        for (Revetement r : catalogue) {
-            if (r.getIdRev() == id) {
-                return r;
-            }
-        }
-        return null;
-    }
+
     
     public static void main(String[] args) {
         // Lance l'application JavaFX
