@@ -7,9 +7,7 @@ public class Strate {
     private double surfaceBrute;
     private List<Revetement> revsSup; // pour le sol 
     private List<Revetement> revsInf; // pour le plafond
-    private List<Ouverture> tremies;  
-    //Pour le dernier étage (sans plafond) : Lors de la création de la pièce strate du sol, mais null pour la strate haute :
-    // Exemple : Piece maChambreSousLesToits = new Piece(1, "Chambre", monPlancher, null);
+    private List<Ouverture> tremies;
 
     public Strate(int idStrate, double surfaceBrute, List<Revetement> revsSup, List<Revetement> revsInf, List<Ouverture> tremies) {
         this.idStrate = idStrate;
@@ -34,8 +32,13 @@ public class Strate {
     public List<Ouverture> getTremies() {
         return tremies;
     }
-// Aucun setters; mais créations de méthodes manuelles (ajouterRevsSup(Revetement r) ou ajouterTremie(Ouverture o)) 
-
+    
+    // Pour pouvoir mettre à jour la surface après un chargement de fichier : 
+    public void setSurfaceBrute(double surfaceBrute){
+        this.surfaceBrute  = surfaceBrute;
+    }
+    
+    
     public void ajouterRevSup(Revetement r){
         if(r != null) this.revsSup.add(r);
     }
