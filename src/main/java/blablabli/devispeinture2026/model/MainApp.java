@@ -10,29 +10,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainApp extends Application {
-    // Notre "Modèle" / l'objet qui contiendra toutes les données du projet
+    // l'objet Batiment contiendra toutes les données du projet
     private Batiment batimentActuel;
     private List<Revetement> catalogue; // Liste pour le catalogue 
 
     @Override
     public void start(Stage primaryStage) {
         catalogue = chargerRevetements("Revetement.txt"); // Chargement du catalogue
-        batimentActuel = new Batiment(1, false, new ArrayList<>());  // Initialisation 
+        batimentActuel = new Batiment(1, true, new ArrayList<>());  // Initialisation (immeuble = true)
 
-        primaryStage.setTitle("Devis Estimatif de Bâtiment");
+        primaryStage.setTitle("Devis Estimatif de Bâtiment"); // Titre sur la bordure de fenetre
 
         // Création du conteneur principal avec des onglets
         TabPane tabPane = new TabPane();
 
-        // ONGLET 1 : SAISIE DES DONNÉES 
+        // 1er onglet 
         Tab tabSaisie = new Tab("1. Saisie des éléments", creerVueSaisie());
         tabSaisie.setClosable(false); // Empêche de fermer l'onglet avec une petite croix
 
-        // ONGLET 2 : CALCUL DU DEVIS 
+        // 2eme onglet (calcul devis) 
         Tab tabDevis = new Tab("2. Détail du devis", creerVueDevis());
         tabDevis.setClosable(false);
 
-        // ONGLET 3 : PLAN 2D
+        // 3eme onglet (plan 2D)
         Tab tabPlan = new Tab("3. Visualisation 2D", creerVuePlan());
         tabPlan.setClosable(false);
 
@@ -71,16 +71,16 @@ public class MainApp extends Application {
     // Méthode pour construire l'interface de saisie
     private VBox creerVueSaisie() {
         VBox conteneur = new VBox(15); // Espacement de 15 pixels entre les éléments
-        conteneur.setPadding(new Insets(20)); // Marge autour du conteneur
+        conteneur.setPadding(new Insets(20)); // Marge autour de la zone du conteneur
 
-        Label titre = new Label("Configuration du bâtiment");
+        Label titre = new Label("Configuration du bâtiment"); 
         titre.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         
         // Choix du type (Maison/Immeuble)
         HBox typeBox = new HBox(10);
         Label lblType = new Label("Type de bâtiment :");
         ComboBox<String> comboType = new ComboBox<>();
-        comboType.getItems().addAll("Maison", "Immeuble");
+        comboType.getItems().addAll("Immeuble","Maison");
         comboType.setValue(batimentActuel.isType() ? "Immeuble" : "Maison");
         
         // Action pour mettre à jour le modèle quand on change le type
@@ -89,27 +89,26 @@ public class MainApp extends Application {
         });
         typeBox.getChildren().addAll(lblType, comboType);
         
-        // Liste visuelle des niveaux
-        VBox sectionNiveaux = new VBox(10);
+        // Liste des niveaux (par ligne)
+        VBox sectionNiveaux = new VBox(10); // VBox (Vertical Box) occupe toute la largeur
         sectionNiveaux.setStyle("-fx-border-color: #cccccc; -fx-padding: 10; -fx-border-radius: 5;");
         Label lblNiv = new Label("Gestion des Niveaux");
         lblNiv.setStyle("-fx-font-weight: bold;");
     
         ListView<String> listeNiveauxUI = new ListView<>();
         HBox boutonsNiveau = new HBox(10); // Pour aligner les boutons horizontalement
-        Button btnAjouterNiveau = new Button("Ajouter un niveau (+)");
+        Button btnAjouterNiveau = new Button("Ajouter un niveau");
         Button btnGererNiveau = new Button("Gérer le niveau sélectionné");
         btnGererNiveau.setDisable(true); // Désactivé par défaut
                 
-        // Lien interface-classes
+        // Lien interface-classes (ici création d'un niveau)
         btnAjouterNiveau.setOnAction( e -> {
             Niveau n = new Niveau(batimentActuel.getNiveaux().size() + 1, 2.50, 0, new ArrayList<>());
             batimentActuel.ajouterNiveau(n);
             listeNiveauxUI.getItems().add("Niveau " + n.getIdNiveau() + " (H: " + n.getH() + "m)");
         });
         
-        // Ecouteur de sélection
-        // Activer le bouton de gestion uniquement si on clique sur un niveau
+        // Ecouteur de sélection : active le bouton de gestion uniquement si on clique sur un niveau
         listeNiveauxUI.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             btnGererNiveau.setDisable(newVal == null);
         });
@@ -123,6 +122,7 @@ public class MainApp extends Application {
             }
         });
         
+        // Implémentation des modifications
         boutonsNiveau.getChildren().addAll(btnAjouterNiveau, btnGererNiveau);
         sectionNiveaux.getChildren().addAll(lblNiv, listeNiveauxUI, boutonsNiveau);
         
@@ -164,9 +164,10 @@ public class MainApp extends Application {
         btnCharger.setOnAction(e -> {
             String nom = txtNomFichier.getText();
             if (nom != null && !nom.trim().isEmpty()) {
-                Batiment batCharge = chargerBatiment(nom);
+                // On utilise la méthode statique de Batiment en lui passant le catalogue en paramètrte
+                Batiment batCharge = Batiment.chargerBatiment(nom, catalogue);
                 if (batCharge != null) {
-                    batimentActuel = batCharge; // Remplace le modèle de données actuel
+                    batimentActuel = batCharge; // Remplace le modèle actuel par celui défini dans le fichier externe
                     
                     // Rafraîchir l'affichage graphique de la liste des niveaux
                     listeNiveauxUI.getItems().clear();
@@ -196,7 +197,7 @@ public class MainApp extends Application {
     
     // Méthode pour ouvrir une fenêtre de gestion d'un niveau spécifique
     private void ouvrirFenetreGestionNiveau(Niveau niveau) {
-        Stage stageNiveau = new Stage();
+        Stage stageNiveau = new Stage(); // Objet fenetre --> Stage = nouvelle fenetre qui s'ouvre
         stageNiveau.setTitle("Gestion du Niveau " + niveau.getIdNiveau());
 
         VBox conteneur = new VBox(15);
@@ -208,12 +209,18 @@ public class MainApp extends Application {
         // Liste pour afficher les appartements de ce niveau
         ListView<String> listeAppartsUI = new ListView<>();
         Label titrePieces = new Label("Pièces de l'appartement sélectionné :");
-        titrePieces.setStyle("-fx-font-weight: bold;");                                 //Pour afficahge et suprression des pièces
+        titrePieces.setStyle("-fx-font-weight: bold;");
         ListView<String> listePiecesUI = new ListView<>();
+        
         Button btnSupprimerPiece = new Button("Supprimer la pièce sélectionnée");
+        btnSupprimerPiece.setStyle(
+            "-fx-background-color: #FFB7B2; " + //Couleur rosée
+            "-fx-text-fill: #333333; " + //gris
+            "-fx-background-radius: 5;"
+        );
         btnSupprimerPiece.setDisable(true); // Désactivé par défaut
         
-        // Méthode de rafraichissement sécurisée
+        // Méthode de rafraichissement
         Runnable rafraichirListes = () -> {
             int indexAppartSelectionne = listeAppartsUI.getSelectionModel().getSelectedIndex();
             
@@ -235,11 +242,11 @@ public class MainApp extends Application {
             listeAppartsUI.getItems().add("Appartement " + app.getIdAppart() + " (" + app.getPieces().size() + " pièces)");
         }
 
-        Button btnAjouterAppart = new Button("Ajouter un Appartement (+)");
+        Button btnAjouterAppart = new Button("Ajouter un Appartement");
         Button btnAjouterPiece = new Button("Ajouter une Pièce à l'appartement sélectionné");
         btnAjouterPiece.setDisable(true); // Désactivé tant qu'aucun appart n'est cliqué
 
-        // Action : Créer un nouvel appartement
+        // Action création nouvel appartement
         btnAjouterAppart.setOnAction(e -> {
             int nouvelId = niveau.getApparts().size() + 1;
             Appartement nouvelAppart = new Appartement(nouvelId, 0, new ArrayList<>());
@@ -280,7 +287,7 @@ public class MainApp extends Application {
             }
         });
         
-        // NOUVEAU : Action pour supprimer la pièce sélectionnée
+        // Action pour supprimer la pièce sélectionnée
         btnSupprimerPiece.setOnAction(e -> {
             int indexAppart = listeAppartsUI.getSelectionModel().getSelectedIndex();
             int indexPiece = listePiecesUI.getSelectionModel().getSelectedIndex();
@@ -319,6 +326,9 @@ public class MainApp extends Application {
         btnCalculer.setOnAction(evenement -> {
             Devis devis = new Devis(batimentActuel);
             devis.calculer();
+            
+        // Agrandissement automatique : On demande à la zone de texte de s'étirer verticalement autant que possible
+        VBox.setVgrow(zoneAffichageDevis, Priority.ALWAYS);
             
             zoneAffichageDevis.setText(devis.afficherDetail());
         });
@@ -403,6 +413,13 @@ public class MainApp extends Application {
 
         // On replace le bouton valider sur la ligne suivante
         Button btnValider = new Button("Créer la pièce");
+        // Fond vert menthe pastel, texte gris foncé, avec des bords légèrement arrondis
+        btnValider.setStyle(
+            "-fx-background-color: #77DD77; " +
+            "-fx-text-fill: #333333; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 5;"
+        );
         grid.add(btnValider, 1, 12);
 
         // Action lors du clic sur Valider
@@ -427,7 +444,7 @@ public class MainApp extends Application {
                 List<Revetement> listeRevPlafond = revPlafond != null ? new ArrayList<>(List.of(revPlafond)) : new ArrayList<>();
                 Strate plafond = new Strate(2, surfaceBrute, new ArrayList<>(), listeRevPlafond, new ArrayList<>());
 
-                // Création des 4 Murs rectangulaires (~~relatifs~, on passe à absolus avec la vue 2D)
+                // Création des 4 Murs rectangulaires ((~~relatifs~)), on est passés à absolus avec la vue 2D (coordonnées)
                 List<Revetement> listeRevMur = revMur != null ? new ArrayList<>(List.of(revMur)) : new ArrayList<>();
                 Mur m1 = new Mur(1, new double[]{startX, startY, startX + L, startY}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
                 Mur m2 = new Mur(2, new double[]{startX + L, startY, startX + L, startY + l}, true, new ArrayList<>(listeRevMur), new ArrayList<>());
@@ -483,16 +500,6 @@ public class MainApp extends Application {
         }
         return null;
     }
-    // Méthode pour retrouver un revêtement par son ID
-    private Revetement trouverRevetementParId(int id) {
-        for (Revetement r : catalogue) {
-            if (r.getIdRev() == id) {
-                return r;
-            }
-        }
-        return null;
-    }
-
     
 
     // Méthode pour construire l'interface du plan 2D
@@ -583,103 +590,6 @@ public class MainApp extends Application {
         }
     
 
-
-    // Méthode pour charger un bâtiment à partir d'un fichier de sauvegarde texte
-    private Batiment chargerBatiment(String nomFichier) {
-        Batiment batimentCharge = null;
-        Niveau niveauCourant = null;
-        Appartement appartCourant = null;
-        Piece pieceCourante = null;
-        Mur murCourant = null; // on garde la memoire sur le dernier mur lu 
-
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(nomFichier))) {
-            String ligne;
-            while ((ligne = br.readLine()) != null) {
-                String[] d = ligne.split(";");
-                if (d.length == 0) continue;
-
-                switch (d[0]) {
-                    case "BATIMENT":
-                        int idBat = Integer.parseInt(d[1]);
-                        boolean isImmeuble = d[2].equalsIgnoreCase("Immeuble");
-                        batimentCharge = new Batiment(idBat, isImmeuble, new ArrayList<>());
-                        break;
-
-                    case "NIVEAU":
-                        if (batimentCharge != null) {
-                            int idNiv = Integer.parseInt(d[1]);
-                            double hauteur = Double.parseDouble(d[2]);
-                            niveauCourant = new Niveau(idNiv, hauteur, 0, new ArrayList<>());
-                            batimentCharge.ajouterNiveau(niveauCourant);
-                        }
-                        break;
-
-                    case "APPART":
-                        if (niveauCourant != null) {
-                            int idAppart = Integer.parseInt(d[1]);
-                            appartCourant = new Appartement(idAppart, 0, new ArrayList<>());
-                            niveauCourant.ajouterAppartement(appartCourant);
-                        }
-                        break;
-
-                    case "PIECE":
-                        if (appartCourant != null) {
-                            int idPiece = Integer.parseInt(d[1]);
-                            String usage = d[2];
-                            // Initialisation de strates vides (Sol et Plafond) pour la pièce
-                            Strate sol = new Strate(1, 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                            Strate plafond = new Strate(2, 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                            
-                            pieceCourante = new Piece(idPiece, usage, new ArrayList<>(), plafond, sol);
-                            appartCourant.ajouterPiece(pieceCourante);
-                        }
-                        break;
-                        
-                    case "REV_SOL":
-                        if (pieceCourante != null && pieceCourante.getStrateDown() != null) {
-                            int idRev = Integer.parseInt(d[1]);
-                            Revetement rev = trouverRevetementParId(idRev);
-                            if (rev != null) pieceCourante.getStrateDown().ajouterRevSup(rev);
-                        }
-                        break;
-                        
-                    case "REV_PLAFOND":
-                        if (pieceCourante != null && pieceCourante.getStrateUp() != null) {
-                            int idRev = Integer.parseInt(d[1]);
-                            Revetement rev = trouverRevetementParId(idRev);
-                            if (rev != null) pieceCourante.getStrateUp().ajouterRevInf(rev);
-                        }
-                        break;
-
-                    case "MUR":
-                        if (pieceCourante != null) {
-                            int idMur = Integer.parseInt(d[1]);
-                            double[] coords = new double[]{
-                                Double.parseDouble(d[2]), Double.parseDouble(d[3]),
-                                Double.parseDouble(d[4]), Double.parseDouble(d[5])
-                            };
-                            boolean isExt = d[6].equals("1");
-                            
-                            murCourant = new Mur(idMur, coords, isExt, new ArrayList<>(), new ArrayList<>());
-                            pieceCourante.ajouterMur(murCourant);
-                        }
-                        break;
-                    
-                    case "REV_MUR":
-                        if (murCourant != null) {
-                            int idRev = Integer.parseInt(d[1]);
-                            Revetement rev = trouverRevetementParId(idRev);
-                            if (rev != null) murCourant.ajouterRevetement(rev);
-                        }
-                        break;
-                }
-            }
-            System.out.println("Chargement réussi depuis " + nomFichier);
-        } catch (Exception e) {
-            System.out.println("Erreur lors du chargement du fichier : " + e.getMessage());
-        }
-        return batimentCharge;
-    }
 
 
     
