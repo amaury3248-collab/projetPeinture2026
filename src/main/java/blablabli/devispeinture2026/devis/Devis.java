@@ -78,7 +78,7 @@ public class Devis {
     public String afficherDetail() {
         StringBuilder sb = new StringBuilder();
         sb.append("======================================\n");
-        sb.append("         DEVIS DU BATIMENT ").append(batiment.getIdBatiment()).append("\n");
+        sb.append("                             DEVIS DU BATIMENT ").append(batiment.getIdBatiment()).append("\n");
         sb.append("======================================\n");
     if (surfaceParRevetement.isEmpty()) {
             sb.append("Aucun revêtement n'a été appliqué aux pièces.\n");
@@ -92,7 +92,7 @@ public class Devis {
             }
         }
         
-        sb.append("\n--------------------------------------\n");
+        sb.append("\n-----------------------------------------------------------------\n");
         sb.append(String.format("TOTAL GLOBAL : %.2f euros\n", montantTotal));
         sb.append("======================================");
         
