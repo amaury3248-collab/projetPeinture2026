@@ -96,7 +96,7 @@ public class MainApp extends Application {
         lblNiv.setStyle("-fx-font-weight: bold;");
     
         ListView<String> listeNiveauxUI = new ListView<>();
-        HBox boutonsNiveau = new HBox(10); // Pour aligner les boutons horizontalement
+        HBox boutonsNiveau = new HBox(10); // Pour aligner les boutons horizontalement (dist 10 px)
         Button btnAjouterNiveau = new Button("Ajouter un niveau");
         Button btnGererNiveau = new Button("Gérer le niveau sélectionné");
         btnGererNiveau.setDisable(true); // Désactivé par défaut
@@ -282,7 +282,7 @@ public class MainApp extends Application {
             int indexAppart = listeAppartsUI.getSelectionModel().getSelectedIndex();
             if (indexAppart >= 0) {
                 Appartement appartSelectionne = niveau.getApparts().get(indexAppart);
-                ouvrirFenetreAjoutPiece(appartSelectionne, niveau);
+                ouvrirFenetreAjoutPiece(appartSelectionne);
                 rafraichirListes.run(); // Met à jour l'interface dès que la fenêtre se ferme  
             }
         });
@@ -339,7 +339,7 @@ public class MainApp extends Application {
 
     
     // Méthode pour ouvrir le formulaire de création d'une pièce
-    private void ouvrirFenetreAjoutPiece(Appartement appart, Niveau niveauContext) {
+    private void ouvrirFenetreAjoutPiece(Appartement appart) {
         Stage stagePiece = new Stage();
         stagePiece.setTitle("Ajouter une Pièce - Appartement " + appart.getIdAppart());
 
