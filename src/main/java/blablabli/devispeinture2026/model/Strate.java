@@ -7,7 +7,8 @@ public class Strate {
     private double surfaceBrute;
     private List<Revetement> revsSup; // pour le sol 
     private List<Revetement> revsInf; // pour le plafond
-    private List<Ouverture> tremies;
+    private List<Ouverture> tremies;  
+    
 
     public Strate(int idStrate, double surfaceBrute, List<Revetement> revsSup, List<Revetement> revsInf, List<Ouverture> tremies) {
         this.idStrate = idStrate;
